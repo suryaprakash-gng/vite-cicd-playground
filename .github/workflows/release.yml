@@ -73,9 +73,21 @@ jobs:
           retention-days: 90
           if-no-files-found: error
 
-  # Deploy production using the pre-built artifact — no rebuild.
-  deploy-production:
+  # 1. Deploy UAT (Staging) automatically using the pre-built artifact — no rebuild.
+  deploy-uat:
     needs: [release-please, build-release]
+    if: needs.release-please.outputs.release_created == 'true'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: uat
+      tag: ${{ needs.release-please.outputs.tag_name }}
+    secrets: inherit
+
+  # 2. Deploy Production — runs after UAT succeeds.
+  # If you configure GitHub Environment protection rules on 'production'
+  # (e.g. required reviewers), GitHub automatically pauses here for approval.
+  deploy-production:
+    needs: [release-please, build-release, deploy-uat]
     if: needs.release-please.outputs.release_created == 'true'
     uses: ./.github/workflows/deploy.yml
     with:

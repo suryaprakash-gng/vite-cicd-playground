@@ -22,10 +22,13 @@ on:
       environment:
         description: Environment to deploy to
         type: choice
-        options: [production]
+        options:
+          - dev
+          - uat
+          - production
         required: true
       tag:
-        description: Release tag to deploy or roll back to (e.g. v1.4.0)
+        description: Release tag or artifact version to deploy (e.g. v1.4.0 or dev-pr-1)
         type: string
         required: true
 

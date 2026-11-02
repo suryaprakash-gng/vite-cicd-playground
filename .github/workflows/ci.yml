@@ -33,4 +33,24 @@ jobs:
         run: pnpm test
 
       - name: Build
-        run: pnpm build
+        env:
+          VITE_APP_ENV: dev
+        run: VITE_COMMIT_SHA="$(git rev-parse --short HEAD)" pnpm build
+
+      - name: Upload dev artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-pr-${{ github.event.pull_request.number }}
+          path: dist
+          retention-days: 7
+          if-no-files-found: error
+
+  deploy-dev:
+    needs: check
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: dev
+      tag: pr-${{ github.event.pull_request.number }}
+    secrets: inherit
