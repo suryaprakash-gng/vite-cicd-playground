@@ -17,6 +17,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  id-token: write # Required for downstream AWS OIDC deployment in deploy-uat and deploy-production
 
 jobs:
   ci:

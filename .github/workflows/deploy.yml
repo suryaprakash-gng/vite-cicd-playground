@@ -34,6 +34,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write # Required for AWS OIDC authentication (AssumeRoleWithWebIdentity)
 
 concurrency:
   group: deploy-${{ inputs.environment }}
@@ -44,75 +45,86 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.environment }}
-      url: ${{ steps.vercel.outputs.preview-url }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Download the artifact built and uploaded by build-release (or a prior release).
+      # Download the artifact built and uploaded by build-release (or dev CI).
       - name: Download versioned artifact
         uses: actions/download-artifact@v4
         with:
           name: site-${{ inputs.tag }}
           path: dist
 
-      # Vercel's --prebuilt expects:
-      #   .vercel/project.json   → project linking metadata
-      #   .vercel/output/static/ → compiled static assets
-      #   .vercel/output/config.json → routing rules (Build Output API v3)
-      - name: Prepare Vercel prebuilt output
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: |
-          mkdir -p .vercel/output/static
-
-          # Write project.json so Vercel CLI can resolve the project without prompting
-          printf '{"orgId":"%s","projectId":"%s"}' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" \
-            > .vercel/project.json
-
-          # Copy the downloaded artifact into the Build Output API v3 static directory
-          cp -r dist/. .vercel/output/static/
-
-          # SPA rewrite: any unmatched path serves index.html for client-side routing
-          cat > .vercel/output/config.json << 'EOF'
-          {
-            "version": 3,
-            "routes": [
-              { "handle": "filesystem" },
-              { "src": "/(.*)", "dest": "/index.html" }
-            ]
-          }
-          EOF
-
-      # Deploy the pre-built artifact directly to Vercel — NO rebuild from source.
-      - name: Deploy pre-built artifact to Vercel
-        id: vercel
-        uses: amondnet/vercel-action@v25
+      # Keyless AWS Authentication using GitHub Actions OIDC Provider
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-project-name: vite-cicd-playground
-          scope: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-version: latest
-          vercel-args: ${{ inputs.environment == 'production' && '--prod --prebuilt' || '--prebuilt' }}
-          working-directory: .
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || secrets.AWS_REGION || 'ap-south-1' }}
+          audience: sts.amazonaws.com
+
+      # Deploy the pre-built static bundle directly to Amazon S3 — ZERO rebuild from source.
+      - name: Deploy to Amazon S3
+        id: s3-deploy
+        env:
+          S3_BUCKET: ${{ vars.S3_BUCKET || secrets.S3_BUCKET }}
+          CF_DISTRIBUTION_ID: ${{ vars.CF_DISTRIBUTION_ID || secrets.CF_DISTRIBUTION_ID }}
+        run: |
+          if [ -z "$S3_BUCKET" ]; then
+            echo "::error::S3_BUCKET variable or secret is not set for environment '${{ inputs.environment }}'."
+            echo "Please set S3_BUCKET in GitHub Environment secrets/variables."
+            exit 1
+          fi
+
+          echo "🚀 Deploying pre-built artifact to s3://$S3_BUCKET..."
+
+          # 1. Fingerprinted/hashed assets: immutable cache for 1 year (31536000s)
+          if [ -d "dist/assets" ]; then
+            echo "📦 Syncing static assets with 1-year immutable caching..."
+            aws s3 sync dist/assets "s3://$S3_BUCKET/assets" \
+              --cache-control "public,max-age=31536000,immutable"
+          fi
+
+          # 2. HTML, manifest, & entrypoints: revalidate immediately (no-cache)
+          echo "📄 Syncing HTML, icons, and root assets with no-cache..."
+          aws s3 sync dist "s3://$S3_BUCKET" \
+            --delete \
+            --exclude "assets/*" \
+            --cache-control "no-cache"
+
+          # 3. Optional CloudFront distribution cache purge
+          if [ -n "$CF_DISTRIBUTION_ID" ]; then
+            echo "⚡ Creating CloudFront invalidation for distribution: $CF_DISTRIBUTION_ID..."
+            INVALIDATION_ID=$(aws cloudfront create-invalidation \
+              --distribution-id "$CF_DISTRIBUTION_ID" \
+              --paths "/*" \
+              --query "Invalidation.Id" \
+              --output text)
+            echo "CF_INVALIDATION_ID=$INVALIDATION_ID" >> "$GITHUB_OUTPUT"
+            echo "CloudFront Invalidation created: $INVALIDATION_ID"
+          fi
 
       - name: Deployment Summary
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           TAG: ${{ inputs.tag }}
-          DEPLOY_URL: ${{ steps.vercel.outputs.preview-url }}
+          S3_BUCKET: ${{ vars.S3_BUCKET || secrets.S3_BUCKET }}
+          CF_DISTRIBUTION_ID: ${{ vars.CF_DISTRIBUTION_ID || secrets.CF_DISTRIBUTION_ID }}
+          CF_INVALIDATION_ID: ${{ steps.s3-deploy.outputs.CF_INVALIDATION_ID }}
         run: |
           {
-            echo "## 🚀 Deployed \`$TAG\` → \`$ENVIRONMENT\`"
+            echo "## 🚀 Deployed \`$TAG\` → Amazon S3 (\`$ENVIRONMENT\`)"
             echo
             echo "| Field | Value |"
             echo "|---|---|"
             echo "| **Tag / Ref** | \`$TAG\` |"
             echo "| **Environment** | \`$ENVIRONMENT\` |"
-            echo "| **URL** | [$DEPLOY_URL]($DEPLOY_URL) |"
+            echo "| **S3 Bucket** | \`s3://$S3_BUCKET\` |"
+            if [ -n "$CF_DISTRIBUTION_ID" ]; then
+              echo "| **CloudFront Dist ID** | \`$CF_DISTRIBUTION_ID\` |"
+              echo "| **Invalidation ID** | \`$CF_INVALIDATION_ID\` |"
+            fi
             echo
             echo "Deployed from pre-built artifact **\`site-$TAG\`** without recompiling source code."
           } >> "$GITHUB_STEP_SUMMARY"

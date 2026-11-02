@@ -1,0 +1,217 @@
+<mxfile host="app.diagrams.net" modified="2026-11-02T15:39:00.000Z" agent="Mozilla/5.0" version="24.0.0" type="device">
+  <diagram id="trunk-based-s3-branching-cicd" name="Branching Strategy &amp; AWS S3 CI/CD Flow">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1300" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ==================== HEADER BANNER ==================== -->
+        <mxCell id="header_box" value="" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#1e293b;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="30" width="1620" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="header_title" value="&lt;div style=&quot;font-size: 20px; font-weight: 700; color: #ffffff;&quot;&gt;Trunk-Based Branching Strategy &amp;amp; Multi-Stage AWS S3 / CloudFront CI/CD Pipeline&lt;/div&gt;&lt;div style=&quot;font-size: 13px; color: #94a3b8; margin-top: 4px;&quot;&gt;Vite SPA • Ephemeral Dev Previews • Semantic Versioning (Release Please) • Immutable S3 Artifact Sync • Gated Production&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;fontFamily=Inter,Segoe UI,sans-serif;" vertex="1" parent="1">
+          <mxGeometry x="65" y="42" width="1050" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="badge_repo" value="&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b style=&quot;color: #f97316;&quot;&gt;TARGET:&lt;/b&gt; Amazon S3 + CloudFront&lt;br&gt;&lt;b style=&quot;color: #38bdf8;&quot;&gt;TRUNK:&lt;/b&gt; main &amp;nbsp;|&amp;nbsp; &lt;b style=&quot;color: #34d399;&quot;&gt;REPO:&lt;/b&gt; vite-cicd-playground&lt;/div&gt;" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#334155;strokeWidth=1.5;fontColor=#f8fafc;fontSize=11;fontFamily=Inter,Segoe UI,sans-serif;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="47" width="290" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== CONTAINER 1: PHASE 1 DEV PREVIEW ==================== -->
+        <mxCell id="c1" value="&lt;b&gt;PHASE 1: Feature Development, Pull Request &amp;amp; Ephemeral S3 Dev Preview&lt;/b&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1.5;align=left;verticalAlign=top;spacingLeft=16;spacingTop=12;fontFamily=Inter,Segoe UI,sans-serif;fontSize=13;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="40" y="145" width="1620" height="205" as="geometry" />
+        </mxCell>
+
+        <!-- Feature Branch -->
+        <mxCell id="b_feat" value="&lt;b style=&quot;font-size: 13px;&quot;&gt;feat/* or fix/*&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #6b21a8;&quot;&gt;Short-Lived Feature Branch&lt;/span&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #c084fc; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: left;&quot;&gt;• Branch off &lt;b&gt;main&lt;/b&gt;&lt;br&gt;• Conventional Commits&lt;br&gt;• Pre-commit hooks (Husky)&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#faf5ff;strokeColor=#a855f7;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontColor=#581c87;" vertex="1" parent="1">
+          <mxGeometry x="70" y="185" width="210" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- Open PR -->
+        <mxCell id="step_pr" value="&lt;b style=&quot;font-size: 13px;&quot;&gt;Pull Request&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #1e40af;&quot;&gt;Target: main&lt;/span&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #93c5fd; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: left;&quot;&gt;• Automated CI trigger&lt;br&gt;• Peer review gate&lt;br&gt;• Branch protection check&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#3b82f6;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontColor=#1e3a8a;" vertex="1" parent="1">
+          <mxGeometry x="340" y="185" width="200" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- CI Workflow Box -->
+        <mxCell id="step_ci" value="&lt;b style=&quot;font-size: 13px;&quot;&gt;Workflow: ci.yml (check)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #065f46;&quot;&gt;Automated Quality Gate&lt;/span&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #6ee7b7; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: left;&quot;&gt;1. &lt;b&gt;pnpm lint&lt;/b&gt; (ESLint, Stylelint)&lt;br&gt;2. &lt;b&gt;pnpm format:check&lt;/b&gt; (Prettier)&lt;br&gt;3. &lt;b&gt;pnpm test&lt;/b&gt; (Vitest)&lt;br&gt;4. &lt;b&gt;pnpm build&lt;/b&gt; (Vite dev bundle)&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#10b981;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontColor=#064e3b;" vertex="1" parent="1">
+          <mxGeometry x="600" y="185" width="250" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- Dev Artifact -->
+        <mxCell id="art_dev" value="&lt;b&gt;Dev Artifact&lt;/b&gt;&lt;br&gt;&lt;code style=&quot;font-size: 11px;&quot;&gt;site-pr-&amp;lt;PR#&amp;gt;&lt;/code&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #854d0e;&quot;&gt;Retention: 7 Days&lt;/span&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#fefce8;strokeColor=#eab308;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontColor=#713f12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="195" width="150" height="115" as="geometry" />
+        </mxCell>
+
+        <!-- Deploy Dev to S3 -->
+        <mxCell id="step_deploy_dev" value="&lt;b style=&quot;font-size: 13px;&quot;&gt;deploy.yml (dev)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #c2410c;&quot;&gt;AWS S3 Sync &amp;amp; Invalidation&lt;/span&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #fed7aa; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: left;&quot;&gt;• &lt;b&gt;aws s3 sync&lt;/b&gt; prebuilt dist/&lt;br&gt;• &lt;b&gt;assets/&lt;/b&gt; → immutable 1y cache&lt;br&gt;• &lt;b&gt;index.html&lt;/b&gt; → no-cache&lt;br&gt;• CloudFront invalidation /*&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#fff7ed;strokeColor=#ea580c;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontColor=#7c2d12;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="185" width="230" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- AWS S3 Dev Target -->
+        <mxCell id="env_dev" value="&lt;b style=&quot;font-size: 13px; color: #ffffff;&quot;&gt;📦 Amazon S3 (Dev Bucket)&lt;/b&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #f97316; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 10px; color: #ffedd5; text-align: left;&quot;&gt;• &lt;b style=&quot;color: #fdba74;&quot;&gt;s3://vite-cicd-dev-bucket&lt;/b&gt;&lt;br&gt;• Ephemeral PR preview route&lt;br&gt;• CloudFront Dev CDN distribution&lt;br&gt;• Live stakeholder testing&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#431407;strokeColor=#ea580c;strokeWidth=2.5;fontFamily=Inter,Segoe UI,sans-serif;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="185" width="240" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- Edges Phase 1 -->
+        <mxCell id="e1" value="git push" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#8b5cf6;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#6b21a8;" edge="1" parent="1" source="b_feat" target="step_pr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="trigger" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3b82f6;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#1d4ed8;" edge="1" parent="1" source="step_pr" target="step_ci">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="upload-artifact" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#10b981;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#047857;" edge="1" parent="1" source="step_ci" target="art_dev">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="needs: check" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#ea580c;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#c2410c;" edge="1" parent="1" source="art_dev" target="step_deploy_dev">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="aws s3 sync" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#ea580c;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#c2410c;" edge="1" parent="1" source="step_deploy_dev" target="env_dev">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== CONTAINER 2: PHASE 2 MAIN & RELEASE PLEASE ==================== -->
+        <mxCell id="c2" value="&lt;b&gt;PHASE 2: Trunk Merge &amp;amp; Automated Semantic Versioning (Release Please)&lt;/b&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1.5;align=left;verticalAlign=top;spacingLeft=16;spacingTop=12;fontFamily=Inter,Segoe UI,sans-serif;fontSize=13;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="40" y="375" width="1620" height="205" as="geometry" />
+        </mxCell>
+
+        <!-- Main Trunk Branch -->
+        <mxCell id="b_main" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;main (Trunk)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #065f46;&quot;&gt;Production-Ready Single Trunk&lt;/span&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #34d399; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: left;&quot;&gt;• Protected trunk branch&lt;br&gt;• Squash / rebase merge&lt;br&gt;• Linear history&lt;br&gt;• Always in deployable state&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;strokeWidth=2.5;fontFamily=Inter,Segoe UI,sans-serif;fontColor=#064e3b;" vertex="1" parent="1">
+          <mxGeometry x="70" y="415" width="220" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- Release Orchestrator -->
+        <mxCell id="step_rel_wf" value="&lt;b style=&quot;font-size: 13px;&quot;&gt;Workflow: release.yml&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #1e40af;&quot;&gt;Trunk Push Trigger&lt;/span&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #93c5fd; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: left;&quot;&gt;1. Calls &lt;b&gt;ci.yml&lt;/b&gt; on main&lt;br&gt;2. Verifies lint, types, tests&lt;br&gt;3. Guarantees green trunk&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#3b82f6;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontColor=#1e3a8a;" vertex="1" parent="1">
+          <mxGeometry x="400" y="415" width="240" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- Release Please Engine -->
+        <mxCell id="step_rp" value="&lt;b style=&quot;font-size: 13px;&quot;&gt;Release Please Action&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #4338ca;&quot;&gt;Automated SemVer Engine&lt;/span&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #a5b4fc; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: left;&quot;&gt;• Analyzes Conventional Commits&lt;br&gt;• &lt;b&gt;feat:&lt;/b&gt; MINOR bump (1.1.0)&lt;br&gt;• &lt;b&gt;fix:&lt;/b&gt; PATCH bump (1.0.1)&lt;br&gt;• &lt;b&gt;BREAKING:&lt;/b&gt; MAJOR bump (2.0.0)&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#eef2ff;strokeColor=#6366f1;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontColor=#3730a3;" vertex="1" parent="1">
+          <mxGeometry x="750" y="415" width="260" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- Automated Release PR -->
+        <mxCell id="pr_release" value="&lt;b style=&quot;font-size: 13px;&quot;&gt;Automated Release PR&lt;/b&gt;&lt;br&gt;&lt;code style=&quot;font-size: 10px; color: #0284c7;&quot;&gt;chore(main): release vX.Y.Z&lt;/code&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #7dd3fc; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: left;&quot;&gt;• Bumps version in &lt;b&gt;package.json&lt;/b&gt;&lt;br&gt;• Generates &lt;b&gt;CHANGELOG.md&lt;/b&gt;&lt;br&gt;• Keeps updating until merged&lt;br&gt;• Developer merges when ready!&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#f0f9ff;strokeColor=#0ea5e9;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontColor=#0369a1;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="415" width="280" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- Edges Phase 2 -->
+        <mxCell id="e_merge_pr" value="PR approved &amp;amp; merged" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#059669;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#047857;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="step_pr" target="b_main">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="push to main" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#059669;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#047857;" edge="1" parent="1" source="b_main" target="step_rel_wf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="runs" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3b82f6;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#1d4ed8;" edge="1" parent="1" source="step_rel_wf" target="step_rp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="opens / updates PR" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6366f1;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#4338ca;" edge="1" parent="1" source="step_rp" target="pr_release">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== CONTAINER 3: PHASE 3 SINGLE BUILD & ARTIFACT ==================== -->
+        <mxCell id="c3" value="&lt;b&gt;PHASE 3: Release PR Merge, Single Immutable Build &amp;amp; Artifact Preservation&lt;/b&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1.5;align=left;verticalAlign=top;spacingLeft=16;spacingTop=12;fontFamily=Inter,Segoe UI,sans-serif;fontSize=13;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="40" y="605" width="1620" height="205" as="geometry" />
+        </mxCell>
+
+        <!-- Merge Release PR -->
+        <mxCell id="step_merge_release" value="&lt;b style=&quot;font-size: 13px;&quot;&gt;Merge Release PR&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #047857;&quot;&gt;Actioned by Tech Lead / Dev&lt;/span&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #6ee7b7; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: left;&quot;&gt;• Merged to &lt;b&gt;main&lt;/b&gt;&lt;br&gt;• Release Please triggers&lt;br&gt;• Automated git tag creation&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#10b981;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontColor=#064e3b;" vertex="1" parent="1">
+          <mxGeometry x="70" y="645" width="220" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- Git Tag & Release -->
+        <mxCell id="step_tag" value="&lt;b style=&quot;font-size: 13px;&quot;&gt;Git Tag &amp;amp; GitHub Release&lt;/b&gt;&lt;br&gt;&lt;code style=&quot;font-size: 11px; color: #1e3a8a;&quot;&gt;tag: vX.Y.Z&lt;/code&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #93c5fd; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: left;&quot;&gt;• Immutable git tag pushed&lt;br&gt;• GitHub release notes created&lt;br&gt;• Triggers &lt;b&gt;build-release&lt;/b&gt; job&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#3b82f6;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontColor=#1e3a8a;" vertex="1" parent="1">
+          <mxGeometry x="380" y="645" width="240" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- Build Release Job (ONCE) -->
+        <mxCell id="step_build_release" value="&lt;b style=&quot;font-size: 13px;&quot;&gt;build-release Job (BUILD ONCE)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #b45309;&quot;&gt;Gold Master Bundle Compilation&lt;/span&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #fcd34d; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: left;&quot;&gt;• Checks out tag &lt;b&gt;vX.Y.Z&lt;/b&gt;&lt;br&gt;• &lt;b&gt;VITE_APP_ENV=production&lt;/b&gt;&lt;br&gt;• &lt;b&gt;pnpm build&lt;/b&gt; runs ONCE&lt;br&gt;• &lt;b&gt;ZERO&lt;/b&gt; downstream rebuilds&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#fffbeb;strokeColor=#f59e0b;strokeWidth=2.5;fontFamily=Inter,Segoe UI,sans-serif;fontColor=#78350f;" vertex="1" parent="1">
+          <mxGeometry x="720" y="645" width="280" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- Release Artifact Store -->
+        <mxCell id="art_prod" value="&lt;b style=&quot;font-size: 13px;&quot;&gt;Immutable Release Artifact&lt;/b&gt;&lt;br&gt;&lt;code style=&quot;font-size: 12px; color: #1e3a8a;&quot;&gt;site-vX.Y.Z&lt;/code&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #475569;&quot;&gt;Retention: 90 Days&lt;/span&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #cbd5e1; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 10px; text-align: center;&quot;&gt;Single Source of Truth for&lt;br&gt;&lt;b&gt;UAT S3, PROD S3 &amp;amp; ROLLBACKS&lt;/b&gt;&lt;/div&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=14;fillColor=#f8fafc;strokeColor=#0284c7;strokeWidth=2.5;fontFamily=Inter,Segoe UI,sans-serif;fontColor=#0f172a;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="635" width="240" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- Edges Phase 3 -->
+        <mxCell id="e_dev_merges_rp" value="Developer merges" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0ea5e9;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#0369a1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="pr_release" target="step_merge_release">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="tags" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#10b981;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#047857;" edge="1" parent="1" source="step_merge_release" target="step_tag">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" value="triggers" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3b82f6;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#1d4ed8;" edge="1" parent="1" source="step_tag" target="step_build_release">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="uploads" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#f59e0b;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#b45309;" edge="1" parent="1" source="step_build_release" target="art_prod">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== CONTAINER 4: PHASE 4 S3 UAT & GATED PROD ==================== -->
+        <mxCell id="c4" value="&lt;b&gt;PHASE 4: Sequential Multi-Stage S3 Deployment &amp;amp; Gated Production Promotion&lt;/b&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1.5;align=left;verticalAlign=top;spacingLeft=16;spacingTop=12;fontFamily=Inter,Segoe UI,sans-serif;fontSize=13;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="40" y="835" width="1620" height="230" as="geometry" />
+        </mxCell>
+
+        <!-- Deploy UAT to S3 -->
+        <mxCell id="step_deploy_uat" value="&lt;b style=&quot;font-size: 13px;&quot;&gt;deploy-uat Job&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #0284c7;&quot;&gt;Automatic S3 Staging Deploy&lt;/span&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #7dd3fc; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: left;&quot;&gt;• Reuses &lt;b&gt;deploy.yml&lt;/b&gt; (uat)&lt;br&gt;• Downloads &lt;b&gt;site-vX.Y.Z&lt;/b&gt;&lt;br&gt;• &lt;b&gt;aws s3 sync&lt;/b&gt; to UAT Bucket&lt;br&gt;• Invalidate CloudFront UAT CDN&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#f0f9ff;strokeColor=#0284c7;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontColor=#0c4a6e;" vertex="1" parent="1">
+          <mxGeometry x="70" y="880" width="240" height="145" as="geometry" />
+        </mxCell>
+
+        <!-- Amazon S3 UAT Target -->
+        <mxCell id="env_uat" value="&lt;b style=&quot;font-size: 13px; color: #ffffff;&quot;&gt;📦 Amazon S3 (UAT / Staging)&lt;/b&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #facc15; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 10px; color: #fef08a; text-align: left;&quot;&gt;• &lt;b style=&quot;color: #fde047;&quot;&gt;s3://vite-cicd-uat-bucket&lt;/b&gt;&lt;br&gt;• CloudFront CDN Edge Cache&lt;br&gt;• Automated E2E &amp;amp; QA validation&lt;br&gt;• Sign-off gate before production&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#422006;strokeColor=#eab308;strokeWidth=2.5;fontFamily=Inter,Segoe UI,sans-serif;" vertex="1" parent="1">
+          <mxGeometry x="380" y="880" width="230" height="145" as="geometry" />
+        </mxCell>
+
+        <!-- Approval Gate -->
+        <mxCell id="gate_prod" value="&lt;b style=&quot;font-size: 12px; color: #991b1b;&quot;&gt;ENVIRONMENT PROTECTION GATE&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #b91c1c;&quot;&gt;GitHub Environment: production&lt;/span&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #fca5a5; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: center; color: #7f1d1d;&quot;&gt;🔒 &lt;b&gt;Required Reviewers&lt;/b&gt;&lt;br&gt;Authorized: &lt;b&gt;@suryaprakash-gng&lt;/b&gt;&lt;br&gt;Pipeline pauses with status:&lt;br&gt;&lt;i&gt;&quot;Waiting for review&quot;&lt;/i&gt;&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#ef4444;strokeWidth=2.5;fontFamily=Inter,Segoe UI,sans-serif;" vertex="1" parent="1">
+          <mxGeometry x="680" y="875" width="280" height="155" as="geometry" />
+        </mxCell>
+
+        <!-- Deploy Prod to S3 Job -->
+        <mxCell id="step_deploy_prod" value="&lt;b style=&quot;font-size: 13px;&quot;&gt;deploy-production Job&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #047857;&quot;&gt;Approved Production S3 Deploy&lt;/span&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #6ee7b7; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: left;&quot;&gt;• Reuses &lt;b&gt;deploy.yml&lt;/b&gt; (production)&lt;br&gt;• Downloads EXACT &lt;b&gt;site-vX.Y.Z&lt;/b&gt;&lt;br&gt;• &lt;b&gt;aws s3 sync&lt;/b&gt; to PROD Bucket&lt;br&gt;• Invalidate CloudFront Prod CDN&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#10b981;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontColor=#064e3b;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="880" width="250" height="145" as="geometry" />
+        </mxCell>
+
+        <!-- Amazon S3 Production Environment -->
+        <mxCell id="env_prod" value="&lt;b style=&quot;font-size: 13px; color: #ffffff;&quot;&gt;🚀 Amazon S3 + CloudFront (PROD)&lt;/b&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #4ade80; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 10px; color: #dcfce7; text-align: left;&quot;&gt;• &lt;b style=&quot;color: #86efac;&quot;&gt;s3://vite-cicd-prod-bucket&lt;/b&gt;&lt;br&gt;• CloudFront HTTPS Custom Domain&lt;br&gt;• Global Edge CDN Caching (TTL 1y)&lt;br&gt;• 100% Bit-for-bit Parity with UAT&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#052e16;strokeColor=#22c55e;strokeWidth=2.5;fontFamily=Inter,Segoe UI,sans-serif;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="880" width="270" height="145" as="geometry" />
+        </mxCell>
+
+        <!-- Edges Phase 4 -->
+        <mxCell id="e_art_to_uat" value="downloads artifact" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284c7;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#0369a1;exitX=0.25;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="art_prod" target="step_deploy_uat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="aws s3 sync" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284c7;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#0369a1;" edge="1" parent="1" source="step_deploy_uat" target="env_uat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" value="UAT validation passes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#eab308;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#a16207;" edge="1" parent="1" source="env_uat" target="gate_prod">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" value="Approved by Reviewer" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#10b981;strokeWidth=2.5;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#047857;" edge="1" parent="1" source="gate_prod" target="step_deploy_prod">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" value="aws s3 sync" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#10b981;strokeWidth=2.5;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#047857;" edge="1" parent="1" source="step_deploy_prod" target="env_prod">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_art_to_prod" value="exact same artifact" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#059669;strokeWidth=2;dashed=1;fontFamily=Inter,Segoe UI,sans-serif;fontSize=11;fontColor=#047857;exitX=0.75;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="art_prod" target="step_deploy_prod">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== CONTAINER 5: EMERGENCY ROLLBACK & HOTFIX ==================== -->
+        <mxCell id="c5" value="&lt;b&gt;PHASE 5: Operational Resilience — Instant Zero-Build Rollback &amp;amp; Hotfix Protocols&lt;/b&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1.5;align=left;verticalAlign=top;spacingLeft=16;spacingTop=12;fontFamily=Inter,Segoe UI,sans-serif;fontSize=13;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1085" width="1620" height="175" as="geometry" />
+        </mxCell>
+
+        <!-- Instant Rollback -->
+        <mxCell id="box_rollback" value="&lt;b style=&quot;font-size: 13px; color: #991b1b;&quot;&gt;⚡ Instant Zero-Build S3 Rollback Protocol&lt;/b&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #fca5a5; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: left; color: #450a0a;&quot;&gt;• Trigger: &lt;b&gt;workflow_dispatch&lt;/b&gt; on &lt;code&gt;deploy.yml&lt;/code&gt;&lt;br&gt;• Select target environment: &lt;b&gt;production&lt;/b&gt; or &lt;b&gt;uat&lt;/b&gt;&lt;br&gt;• Enter previous known healthy tag (e.g., &lt;b&gt;v1.0.0&lt;/b&gt;)&lt;br&gt;• Downloads existing &lt;b&gt;site-v1.0.0&lt;/b&gt; from GitHub Actions Artifacts&lt;br&gt;• &lt;b style=&quot;color: #b91c1c;&quot;&gt;Direct S3 sync &amp;amp; CloudFront purge in &amp;lt; 15 seconds — ZERO build time, zero risk!&lt;/b&gt;&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#fff1f2;strokeColor=#f43f5e;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1120" width="720" height="115" as="geometry" />
+        </mxCell>
+
+        <!-- Hotfix Protocol -->
+        <mxCell id="box_hotfix" value="&lt;b style=&quot;font-size: 13px; color: #9a3412;&quot;&gt;🔥 Production Hotfix Protocol (Single-Trunk Model)&lt;/b&gt;&lt;hr style=&quot;border: 0; border-top: 1px solid #fdba74; margin: 4px 0;&quot;&gt;&lt;div style=&quot;font-size: 11px; text-align: left; color: #431407;&quot;&gt;• Branch off culprit commit on &lt;b&gt;main&lt;/b&gt;: &lt;code&gt;git checkout -b hotfix/fix-auth&lt;/code&gt;&lt;br&gt;• Commit fix with Conventional Commit: &lt;code&gt;fix: resolve production auth crash&lt;/code&gt;&lt;br&gt;• PR to &lt;b&gt;main&lt;/b&gt; triggers CI &amp;amp; Dev Preview verification on S3 Dev bucket&lt;br&gt;• Merging to &lt;b&gt;main&lt;/b&gt; prompts Release Please to issue a &lt;b&gt;PATCH&lt;/b&gt; release (e.g. &lt;b&gt;v1.1.1&lt;/b&gt;)&lt;br&gt;• Automatically promoted to UAT S3 &amp;amp; Gated Production S3 via standard pipeline&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#fff7ed;strokeColor=#f97316;strokeWidth=2;fontFamily=Inter,Segoe UI,sans-serif;" vertex="1" parent="1">
+          <mxGeometry x="830" y="1120" width="800" height="115" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -6,6 +6,8 @@ This directory contains the GitHub Actions automation, release lifecycle, artifa
 
 ## 1. High-Level Architecture & Flow
 
+> 📐 **Visual Diagram**: An editable architecture file is available at [branching-strategy.drawio](file:///home/aries-surya/Documents/surya-gng/gng-DevOps/app-cicd-pipeline/poc/vite-cicd-playground/.github/architecture/branching-strategy.drawio) (open with [draw.io](https://app.diagrams.net) or the VS Code Draw.io extension).
+
 ```mermaid
 flowchart TD
     classDef branch fill:#2d3748,stroke:#4a5568,stroke-width:2px,color:#fff
@@ -21,7 +23,7 @@ flowchart TD
         LintCheck["Lint, Format, Tests, Build"]:::step
         UploadDev["Upload Artifact\nsite-pr-&lt;number&gt;"]:::step
         DeployDev["deploy.yml: dev"]:::workflow
-        DevEnv[("Environment: dev")]:::env
+        DevEnv[("Amazon S3: Dev Bucket\n+ CloudFront Dev")]:::env
 
         DevBranch --> PR --> CIWorkflow
         CIWorkflow --> LintCheck --> UploadDev --> DeployDev --> DevEnv
@@ -43,10 +45,10 @@ flowchart TD
         BuildRelease["build-release Job\n(Build ONCE from tag)"]:::step
         ReleaseArtifact[("Artifact: site-vX.Y.Z\n90-Day Retention")]:::env
         DeployUAT["deploy.yml: uat"]:::workflow
-        UATEnv[("Environment: uat (Staging)")]:::env
+        UATEnv[("Amazon S3: UAT Bucket\n+ CloudFront UAT")]:::env
         ApprovalGate{"Manual Review Gate\n(GitHub Environment: production)"}:::gate
         DeployProd["deploy.yml: production"]:::workflow
-        ProdEnv[("Environment: production")]:::env
+        ProdEnv[("Amazon S3: Prod Bucket\n+ CloudFront Prod")]:::env
 
         ReleasePR -. "Developer Merges" .-> MergeRelease
         MergeRelease --> BuildRelease --> ReleaseArtifact

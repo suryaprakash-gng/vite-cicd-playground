@@ -4,6 +4,10 @@ on:
   pull_request:
   workflow_call:
 
+permissions:
+  contents: read
+  id-token: write # Required for downstream AWS OIDC deployment
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
