@@ -1,8 +1,12 @@
 name: Release
 
-# main         → deploy to development, keep the Release PR up to date
-# Release PR   → merged: tag vX.Y.Z -> (approval) → staging → (approval) → production
-# hotfix/**    → same release flow for a patch cut from a production tag
+# Trunk-Based, Artifact-as-Source-of-Truth strategy:
+#
+#   PR (feature/**, fix/**) ──► CI ──► merge to main
+#   main ──► release-please keeps Release PR up to date
+#   Release PR merged ──► tag vX.Y.Z ──► build ONCE ──► artifact stored ──► deploy production
+#   Rollback: workflow_dispatch on deploy.yml with an older tag (no rebuild)
+#   Hotfix: branch off a commit on main ──► fix ──► PR to main ──► same flow
 
 on:
   push:
@@ -13,7 +17,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  id-token: write
 
 jobs:
   ci:
@@ -24,40 +27,58 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
+      tag_name:        ${{ steps.release.outputs.tag_name }}
     steps:
-      - uses: googleapis/release-please-action@v5
+      - uses: googleapis/release-please-action@v4
         id: release
         with:
+          # A PAT (RELEASE_PLEASE_TOKEN) is required so the tag push
+          # triggers the downstream build job. The default GITHUB_TOKEN
+          # cannot trigger new workflow runs.
           token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
           target-branch: ${{ github.ref_name }}
 
-  deploy-development:
-    needs: ci
-    if: github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/deploy.yml
-    with:
-      environment: development
-      ref: ${{ github.sha }}
+  # Build ONCE when a release tag is created and store as a versioned artifact.
+  # deploy.yml downloads this artifact; it never rebuilds from source.
+  build-release:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
 
-  # On main, staging waits for the development deploy to succeed.
-  # Hotfix branches skip development, so "skipped" is allowed too.
-  deploy-staging:
-    needs: [release-please, deploy-development]
-    if: >-
-      !cancelled() &&
-      needs.release-please.outputs.release_created == 'true' &&
-      contains(fromJSON('["success", "skipped"]'), needs.deploy-development.result)
-    uses: ./.github/workflows/deploy.yml
-    with:
-      environment: staging
-      ref: ${{ needs.release-please.outputs.tag_name }}
+      - uses: pnpm/action-setup@v4
 
-  # Waits for a required reviewer on the "production" GitHub Environment
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build
+        env:
+          VITE_APP_ENV: production
+        run: VITE_COMMIT_SHA="$(git rev-parse --short HEAD)" pnpm build
+
+      # Artifact name = "site-v1.2.3" — the tag is the source of truth.
+      # 90-day retention keeps every release available for rollback.
+      - name: Upload versioned artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-${{ needs.release-please.outputs.tag_name }}
+          path: dist
+          retention-days: 90
+          if-no-files-found: error
+
+  # Deploy production using the pre-built artifact — no rebuild.
   deploy-production:
-    needs: [release-please, deploy-staging]
-    if: ${{ !cancelled() && needs.deploy-staging.result == 'success' }}
+    needs: [release-please, build-release]
+    if: needs.release-please.outputs.release_created == 'true'
     uses: ./.github/workflows/deploy.yml
     with:
       environment: production
-      ref: ${{ needs.release-please.outputs.tag_name }}
+      tag: ${{ needs.release-please.outputs.tag_name }}
+    secrets: inherit
