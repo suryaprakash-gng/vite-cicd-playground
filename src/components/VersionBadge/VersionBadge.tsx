@@ -1,8 +1,11 @@
-type AppEnv = "local" | "development" | "staging" | "production";
+type AppEnv =
+  "local" | "dev" | "development" | "uat" | "staging" | "production";
 
 const envStyles: Record<AppEnv, string> = {
   local: "bg-gray-100 text-gray-800",
+  dev: "bg-blue-100 text-blue-800",
   development: "bg-blue-100 text-blue-800",
+  uat: "bg-amber-100 text-amber-800",
   staging: "bg-amber-100 text-amber-800",
   production: "bg-green-100 text-green-800",
 };

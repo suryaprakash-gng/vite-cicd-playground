@@ -1,13 +1,15 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-  VITE_BACKEND_BASE_URL: z.url({
-    error:
-      "VITE_BACKEND_BASE_URL must be a full URL, e.g. http://localhost:8069. Copy .env.example to .env and set it.",
-  }),
+  VITE_BACKEND_BASE_URL: z
+    .url({
+      error:
+        "VITE_BACKEND_BASE_URL must be a full URL, e.g. http://localhost:8069.",
+    })
+    .default("http://localhost:8069"),
   // Set by the deploy workflow; "local" when running on your machine
   VITE_APP_ENV: z
-    .enum(["local", "development", "staging", "production"])
+    .enum(["local", "dev", "development", "uat", "staging", "production"])
     .default("local"),
   VITE_COMMIT_SHA: z.string().default("local"),
 });
@@ -16,7 +18,7 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse(import.meta.env);
 if (!parsed.success) {
   throw new Error(
-    `Invalid environment variables:\n${z.prettifyError(parsed.error)}`
+    `Invalid environment variables:\n${z.prettifyError(parsed.error)}`,
   );
 }
 
