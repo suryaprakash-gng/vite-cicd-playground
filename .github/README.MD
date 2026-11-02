@@ -1,6 +1,6 @@
 # CI/CD Pipeline Architecture & Documentation
 
-This directory contains the GitHub Actions automation, release lifecycle, and environment deployment configuration for the Vite Single Page Application.
+This directory contains the GitHub Actions automation, release lifecycle, artifact storage, and multi-environment deployment configuration for the Vite Single Page Application.
 
 ---
 
@@ -14,52 +14,45 @@ flowchart TD
     classDef env fill:#744210,stroke:#d69e2e,stroke-width:2px,color:#fff
     classDef gate fill:#742a2a,stroke:#e53e3e,stroke-width:2px,color:#fff
 
-    subgraph Phase1["1. PR Quality Gate"]
+    subgraph Phase1["1. PR Quality Gate & Dev Preview"]
         DevBranch(["Feature / Bugfix Branch"]):::branch
         PR["Create Pull Request"]:::step
         CIWorkflow["Workflow: ci.yml"]:::workflow
-        LintCheck["Lint & Types (ESLint, Stylelint, TSC)"]:::step
-        FormatCheck["Format Check (Prettier)"]:::step
-        TestCheck["Unit Tests (Vitest)"]:::step
-        BuildCheck["Production Build (Vite)"]:::step
-        
+        LintCheck["Lint, Format, Tests, Build"]:::step
+        UploadDev["Upload Artifact\nsite-pr-&lt;number&gt;"]:::step
+        DeployDev["deploy.yml: dev"]:::workflow
+        DevEnv[("Environment: dev")]:::env
+
         DevBranch --> PR --> CIWorkflow
-        CIWorkflow --> LintCheck & FormatCheck & TestCheck & BuildCheck
+        CIWorkflow --> LintCheck --> UploadDev --> DeployDev --> DevEnv
     end
 
-    subgraph Phase2["2. Main Merge & Development Deployment"]
+    subgraph Phase2["2. Main Merge & Automated Versioning"]
         MainBranch(["Merged to 'main'"]):::branch
         ReleaseWorkflow["Workflow: release.yml"]:::workflow
-        CIOnMain["Workflow: ci.yml (Gate)"]:::workflow
-        DeployDev["deploy.yml: Development"]:::workflow
-        DevEnv[("Environment: development")]:::env
+        CIOnMain["Workflow: ci.yml (Quality Gate)"]:::workflow
         ReleasePlease["Release Please Action"]:::step
         ReleasePR["Automated Release PR\n(Bumps Version & CHANGELOG.md)"]:::step
 
         MainBranch --> ReleaseWorkflow
-        ReleaseWorkflow --> CIOnMain
-        CIOnMain --> DeployDev
-        DeployDev --> DevEnv
-        CIOnMain --> ReleasePlease
-        ReleasePlease --> ReleasePR
+        ReleaseWorkflow --> CIOnMain --> ReleasePlease --> ReleasePR
     end
 
-    subgraph Phase3["3. Release & Multi-Environment Promotion"]
+    subgraph Phase3["3. Release, UAT & Gated Production Deploy"]
         MergeRelease["Merge Release PR / Push hotfix/**"]:::branch
-        CreateTag["Git Tag Created (vX.Y.Z)\n& GitHub Release Published"]:::step
-        DeployStaging["deploy.yml: Staging"]:::workflow
-        StagingEnv[("Environment: staging")]:::env
-        ApprovalGate{"Manual Review Gate\n(GitHub Environment Protection)"}:::gate
-        DeployProd["deploy.yml: Production"]:::workflow
+        BuildRelease["build-release Job\n(Build ONCE from tag)"]:::step
+        ReleaseArtifact[("Artifact: site-vX.Y.Z\n90-Day Retention")]:::env
+        DeployUAT["deploy.yml: uat"]:::workflow
+        UATEnv[("Environment: uat (Staging)")]:::env
+        ApprovalGate{"Manual Review Gate\n(GitHub Environment: production)"}:::gate
+        DeployProd["deploy.yml: production"]:::workflow
         ProdEnv[("Environment: production")]:::env
 
         ReleasePR -. "Developer Merges" .-> MergeRelease
-        MergeRelease --> CreateTag
-        CreateTag --> DeployStaging
-        DeployStaging --> StagingEnv
-        StagingEnv --> ApprovalGate
-        ApprovalGate -- "Approved by Reviewer" --> DeployProd
-        DeployProd --> ProdEnv
+        MergeRelease --> BuildRelease --> ReleaseArtifact
+        ReleaseArtifact --> DeployUAT --> UATEnv
+        UATEnv --> ApprovalGate
+        ApprovalGate -- "Approved by Reviewer" --> DeployProd --> ProdEnv
     end
 ```
 
@@ -68,66 +61,78 @@ flowchart TD
 ## 2. Core Workflows Explained
 
 ### A. CI Workflow (`ci.yml`)
-- **Trigger**: Runs on every `pull_request` event targeting branches or called reusable via `workflow_call`.
-- **Purpose**: Fast feedback loop preventing broken code, syntax errors, or regression bugs from landing in protected branches.
+- **Trigger**: Runs on every `pull_request` event or when called by other workflows (`workflow_call`).
+- **Purpose**: Fast feedback loop that guarantees quality before merging and spins up an ephemeral dev preview.
 - **Jobs & Steps**:
-  1. Checks out repository source code.
-  2. Sets up Node.js runtime according to `.nvmrc` with native `pnpm` caching.
-  3. Installs dependencies using `pnpm install --frozen-lockfile`.
-  4. Runs code quality tasks in parallel/sequence:
-     - `pnpm lint`: Lints JavaScript, TypeScript, CSS/SCSS, and runs static type-checking.
-     - `pnpm format:check`: Validates formatting against Prettier standards.
-     - `pnpm test`: Runs Vitest unit tests.
-     - `pnpm build`: Verifies that Vite compiles static output without errors.
-- **Concurrency**: Cancels earlier queued runs on the same branch if a newer commit is pushed (`cancel-in-progress: true`).
+  1. **`check` Job**:
+     - Sets up Node.js from `.nvmrc` with cached `pnpm`.
+     - Installs locked dependencies via `pnpm install --frozen-lockfile`.
+     - Runs `pnpm lint`, `pnpm format:check`, and `pnpm test`.
+     - Compiles with Vite for `dev` environment (`VITE_APP_ENV=dev`).
+     - Uploads the preview bundle as `site-pr-<number>` (7-day retention).
+  2. **`deploy-dev` Job**:
+     - Reuses `deploy.yml` with `environment: dev` and tag `pr-<number>`.
+- **Concurrency**: Cancels previous active runs on the same branch when new commits are pushed (`cancel-in-progress: true`).
 
 ---
 
 ### B. Release Orchestrator (`release.yml`)
-- **Trigger**: Runs automatically on pushes to `main` and `hotfix/**`.
-- **Purpose**: Coordinates deployments across environments and automates Semantic Versioning (SemVer).
+- **Trigger**: Runs on direct push / merge to `main` and `hotfix/**`.
+- **Purpose**: Automates Semantic Versioning, single-source compilation, and sequential promotion to UAT and Production.
 - **Execution Lifecycle**:
-  1. **`ci` Job**: Verifies test suite passes on the target branch.
-  2. **`deploy-development` Job**: Immediately triggers `deploy.yml` with the latest commit SHA and deploys to the `development` environment.
-  3. **`release-please` Job**:
-     - Evaluates Conventional Commits (e.g., `feat:`, `fix:`, `perf:`).
-     - Maintains or updates a tracking Release PR with updated versions in `package.json` and generated release notes in `CHANGELOG.md`.
-     - When the Release PR is merged, it tags the commit with `vX.Y.Z` and outputs `release_created: true`.
-  4. **`deploy-staging` Job**: Triggers once a release is created, deploying the tag to the `staging` environment.
-  5. **`deploy-production` Job**: Waits for `staging` deployment to succeed, then pauses for manual approval via GitHub Environment protection before deploying to `production`.
+  1. **`ci` Job**: Re-runs the full CI suite to ensure clean state on `main`.
+  2. **`release-please` Job**:
+     - Analyzes Conventional Commits (`feat:`, `fix:`, `perf:`).
+     - Maintains a Release PR updating `package.json` and `CHANGELOG.md`.
+     - When merged, it tags `vX.Y.Z` and sets `release_created: true`.
+  3. **`build-release` Job**:
+     - Checks out the official release tag `vX.Y.Z`.
+     - **Compiles ONCE** with Vite for production.
+     - Uploads the immutable artifact: **`site-vX.Y.Z`** (90-day retention).
+  4. **`deploy-uat` Job**:
+     - Downloads `site-vX.Y.Z` artifact and deploys it immediately to the **`uat`** (staging) environment.
+  5. **`deploy-production` Job**:
+     - Waits for UAT deployment to succeed.
+     - Downloads the exact same `site-vX.Y.Z` artifact.
+     - Deploys to **`production`** (pauses if GitHub Environment Required Reviewer is enabled).
 
 ---
 
 ### C. Reusable Deploy Workflow (`deploy.yml`)
-- **Trigger**: Called by `release.yml` (`workflow_call`) or run manually (`workflow_dispatch`).
+- **Trigger**: Called by `ci.yml` / `release.yml` (`workflow_call`) or run manually (`workflow_dispatch`).
 - **Inputs**:
-  - `environment`: `development` | `staging` | `production`.
-  - `ref`: Git branch, tag, or commit SHA.
-- **Steps**:
-  1. **Environment Validation**: Asserts required environment variables (e.g., `VITE_BACKEND_BASE_URL`) exist for the target environment.
-  2. **Asset Compilation**: Builds optimized production bundles using Vite, embedding target environment name, release version, and short Git commit SHA.
-  3. **Deploy Simulation (POC Mode)**:
-     - In production, this runs `aws s3 sync` and invalidates AWS CloudFront caches.
-     - In this playground/POC, it formats the exact AWS CLI commands, outputs a summary table to `$GITHUB_STEP_SUMMARY`, and uploads the build artifact (`site-<env>`).
-  4. **Artifact Archiving**: Stores the compiled `dist/` directory as a downloadable GitHub Action artifact (7-day retention).
+  - `environment`: `dev` | `uat` | `production`.
+  - `tag`: Version tag or PR identifier (e.g., `v1.1.0` or `pr-1`).
+- **Key Principle — Artifact as Source of Truth**:
+  - **No source compilation or npm installs occur here.**
+  - Downloads `site-${{ inputs.tag }}` artifact directly.
+  - Deploys the pre-built static bundle to the target environment.
+  - Writes a comprehensive deployment summary to `$GITHUB_STEP_SUMMARY`.
 
 ---
 
 ## 3. Environment Progression Matrix
 
-| Environment | Trigger Condition | Code Reference | Approval Required? | Purpose |
+| Environment | Trigger Condition | Artifact Used | Approval Required? | Purpose |
 | :--- | :--- | :--- | :---: | :--- |
-| **development** | Push to `main` branch | Commit SHA (`HEAD`) | No | Continuous integration testing and active feature validation. |
-| **staging** | Merging a Release PR | Release Tag (`vX.Y.Z`) | No | Pre-production testing, QA smoke tests, and final dress rehearsal. |
-| **production** | Successful staging deploy | Release Tag (`vX.Y.Z`) | **Yes** (Required Reviewer) | Live customer-facing release. |
+| **dev** | Opened / Updated PR | `site-pr-<number>` | No | Ephemeral review & testing before merge. |
+| **uat** (Staging) | Merged Release PR | `site-vX.Y.Z` | No | Automated UAT validation & QA sign-off. |
+| **production** | Successful UAT Deploy | `site-vX.Y.Z` | **Yes** (Required Reviewer) | Live user-facing production release. |
 
 ---
 
-## 4. Manual Rollbacks & Redeploys
+## 4. Rollback & Hotfix Procedures
 
-If an issue occurs in `staging` or `production`:
-1. Navigate to **Actions** $\rightarrow$ **Deploy** workflow in GitHub.
+### Rollback (Instant, Zero Build Time)
+If production or UAT experiences issues:
+1. In GitHub, go to **Actions** $\rightarrow$ **Deploy**.
 2. Click **Run workflow**.
-3. Select the target **Environment** (`staging` or `production`).
-4. Enter the desired stable tag or commit (e.g., `v1.2.0`).
-5. Click **Run workflow**. The deployment pipeline will compile and deploy that exact version.
+3. Select target **Environment** (`production` or `uat`).
+4. Enter the known healthy release tag (e.g., `v1.0.0`).
+5. Click **Run workflow**. The pipeline fetches `site-v1.0.0` from GitHub Actions storage and deploys it immediately without rebuilding.
+
+### Hotfix (Single Trunk Model)
+1. Branch off the offending commit on `main`: `git checkout -b hotfix/fix-login-error <commit-sha>`.
+2. Commit the fix using Conventional Commits: `git commit -m "fix: resolve login auth error"`.
+3. Open PR directly to `main` $\rightarrow$ CI validates and deploys to `dev`.
+4. Merge PR $\rightarrow$ `release-please` automatically produces a patch release (e.g., `v1.0.1`) $\rightarrow$ deploys to `uat` and `production`.
