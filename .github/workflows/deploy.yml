@@ -93,6 +93,8 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-project-name: vite-cicd-playground
+          scope: ${{ secrets.VERCEL_ORG_ID }}
           vercel-version: latest
           vercel-args: ${{ inputs.environment == 'production' && '--prod --prebuilt' || '--prebuilt' }}
           working-directory: .
