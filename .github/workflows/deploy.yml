@@ -56,7 +56,27 @@ jobs:
           name: site-${{ inputs.tag }}
           path: dist
 
-      # Deploy the pre-built artifact in dist/ directly to Vercel — NO rebuild from source.
+      # Vercel's --prebuilt expects static files in .vercel/output/static
+      - name: Prepare Vercel prebuilt output
+        run: |
+          mkdir -p .vercel/output/static
+          cp -r dist/* .vercel/output/static/
+          cat << 'EOF' > .vercel/output/config.json
+          {
+            "version": 3,
+            "routes": [
+              {
+                "handle": "filesystem"
+              },
+              {
+                "src": "/(.*)",
+                "dest": "/index.html"
+              }
+            ]
+          }
+          EOF
+
+      # Deploy the pre-built artifact directly to Vercel — NO rebuild from source.
       - name: Deploy pre-built artifact to Vercel
         id: vercel
         uses: amondnet/vercel-action@v25
