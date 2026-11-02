@@ -1,0 +1,214 @@
+<mxfile host="Electron" pages="5">
+  <diagram id="7NK3oKuHpJrvwSxvUCCu" name="branching-strategy">
+    <mxGraphModel dx="1422" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Outer Boundary Container -->
+        <mxCell id="outer_border" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="100" y="80" width="616" height="788" as="geometry" />
+        </mxCell>
+
+        <!-- GitHub Env Header -->
+        <mxCell id="github_icon" value="" style="dashed=0;outlineConnect=0;html=1;align=center;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.weblogos.github;fillColor=#000000;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="105" y="85" width="46" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="github_text" value="&lt;b&gt;GitHub Env&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12;fontColor=#000000;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="155" y="93" width="100" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Top GitHub SCM Box -->
+        <mxCell id="scm_box" value="&lt;b&gt;GitHub SCM&lt;br&gt;(abate-git)&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=1.5;fontColor=#000000;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="298" y="128" width="280" height="114" as="geometry" />
+        </mxCell>
+
+        <!-- SCM to Branches Orthogonal Connectors -->
+        <mxCell id="edge_scm_dev" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;" edge="1" parent="1" source="scm_box" target="box_dev">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_scm_uat" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;" edge="1" parent="1" source="scm_box" target="box_uat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_scm_prod" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;" edge="1" parent="1" source="scm_box" target="box_prod">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Branch Header Boxes -->
+        <mxCell id="box_dev" value="DEV" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="250" y="309" width="105" height="57" as="geometry" />
+        </mxCell>
+        <mxCell id="box_uat" value="UAT" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="385" y="309" width="105" height="57" as="geometry" />
+        </mxCell>
+        <mxCell id="box_prod" value="PROD" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="527" y="309" width="105" height="57" as="geometry" />
+        </mxCell>
+
+        <!-- Feature Branch Box -->
+        <mxCell id="box_feature" value="Feature" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="145" y="424" width="105" height="57" as="geometry" />
+        </mxCell>
+
+        <!-- Bottom CI/CD Pipeline Boxes -->
+        <mxCell id="box_pipeline_dev" value="GitHub CI/CD&lt;br&gt;Pipeline" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="250" y="711" width="105" height="96" as="geometry" />
+        </mxCell>
+        <mxCell id="box_pipeline_uat" value="GitHub CI/CD&lt;br&gt;Pipeline" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="385" y="711" width="105" height="96" as="geometry" />
+        </mxCell>
+        <mxCell id="box_pipeline_prod" value="GitHub CI/CD&lt;br&gt;Pipeline" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="527" y="711" width="105" height="96" as="geometry" />
+        </mxCell>
+
+        <!-- Dashed Lifelines from Top Branch Boxes to Bottom Pipeline Boxes -->
+        <mxCell id="line_dev" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1;dashed=1;dashPattern=6 6;endArrow=classic;endFill=1;" edge="1" parent="1" source="box_dev" target="box_pipeline_dev">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="line_uat" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1;dashed=1;dashPattern=6 6;endArrow=classic;endFill=1;" edge="1" parent="1" source="box_uat" target="box_pipeline_uat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="line_prod" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1;dashed=1;dashPattern=6 6;endArrow=classic;endFill=1;" edge="1" parent="1" source="box_prod" target="box_pipeline_prod">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Solid Line from Feature Box downwards -->
+        <mxCell id="line_feat_spine" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1;endArrow=none;endFill=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="197" y="481" as="sourcePoint" />
+            <mxPoint x="197" y="650" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Commit Dots and Version Badges: Row 1 (v1.1.0) -->
+        <!-- DEV Row 1 Commit -->
+        <mxCell id="dot_dev_1" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#808080;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="293" y="401" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stem_dev_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=1.5;endArrow=none;endFill=0;" edge="1" parent="1" source="dot_dev_1" target="tag_dev_1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tag_dev_1" value="v1.1.0" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ff9999;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="319" y="425" width="55" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- UAT Row 1 Commit -->
+        <mxCell id="dot_uat_1" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#808080;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="428" y="401" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stem_uat_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=1.5;endArrow=none;endFill=0;" edge="1" parent="1" source="dot_uat_1" target="tag_uat_1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tag_uat_1" value="v1.1.0" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ff9999;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="454" y="425" width="55" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- PROD Row 1 Commit -->
+        <mxCell id="dot_prod_1" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#808080;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="570" y="401" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stem_prod_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=1.5;endArrow=none;endFill=0;" edge="1" parent="1" source="dot_prod_1" target="tag_prod_1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tag_prod_1" value="v1.1.0" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ff9999;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="595" y="425" width="55" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-Environment Dashed Promotion Line (v1.1.0) -->
+        <mxCell id="edge_row1_dev_uat" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1;dashed=1;dashPattern=6 6;endArrow=classic;endFill=1;" edge="1" parent="1" source="dot_dev_1" target="dot_uat_1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_row1_uat_prod" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1;dashed=1;dashPattern=6 6;endArrow=classic;endFill=1;" edge="1" parent="1" source="dot_uat_1" target="dot_prod_1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Branch out to Feature: DEV -> Feature Box -->
+        <mxCell id="edge_branch_out" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1;dashed=1;dashPattern=6 6;endArrow=classic;endFill=1;" edge="1" parent="1" source="dot_dev_1" target="box_feature">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Feature Branch Commits -->
+        <!-- Feature Commit 1 (v1.1.2) -->
+        <mxCell id="dot_feat_1" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#808080;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="187" y="495" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stem_feat_1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=1.5;endArrow=none;endFill=0;" edge="1" parent="1" source="dot_feat_1" target="tag_feat_1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tag_feat_1" value="v1.1.2" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ff9999;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="214" y="519" width="55" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Feature Commit 2 (v1.1.5) -->
+        <mxCell id="dot_feat_2" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#808080;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="187" y="553" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stem_feat_2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=1.5;endArrow=none;endFill=0;" edge="1" parent="1" source="dot_feat_2" target="tag_feat_2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tag_feat_2" value="v1.1.5" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ff9999;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="214" y="577" width="55" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Feature Release Candidate Commit (v1.2.0) -->
+        <mxCell id="dot_feat_3" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#808080;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="187" y="611" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stem_feat_3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=1.5;endArrow=none;endFill=0;" edge="1" parent="1" source="dot_feat_3" target="tag_feat_3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tag_feat_3" value="v1.2.0" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ff9999;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="214" y="635" width="55" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Merge Back into DEV and Promote across UAT and PROD: Row 2 (v1.2.0) -->
+        <!-- DEV Row 2 Commit -->
+        <mxCell id="dot_dev_2" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#808080;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="293" y="611" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stem_dev_2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=1.5;endArrow=none;endFill=0;" edge="1" parent="1" source="dot_dev_2" target="tag_dev_2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tag_dev_2" value="v1.2.0" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ff9999;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="319" y="635" width="55" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- UAT Row 2 Commit -->
+        <mxCell id="dot_uat_2" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#808080;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="428" y="611" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stem_uat_2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=1.5;endArrow=none;endFill=0;" edge="1" parent="1" source="dot_uat_2" target="tag_uat_2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tag_uat_2" value="v1.2.0" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ff9999;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="454" y="635" width="55" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- PROD Row 2 Commit -->
+        <mxCell id="dot_prod_2" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#808080;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="570" y="611" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stem_prod_2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=1.5;endArrow=none;endFill=0;" edge="1" parent="1" source="dot_prod_2" target="tag_prod_2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tag_prod_2" value="v1.2.0" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ff9999;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=9;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="595" y="635" width="55" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Merge line: Feature -> DEV -->
+        <mxCell id="edge_feat_to_dev" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1;dashed=1;dashPattern=6 6;endArrow=classic;endFill=1;" edge="1" parent="1" source="dot_feat_3" target="dot_dev_2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-Environment Promotion Line (v1.2.0): DEV -> UAT -> PROD -->
+        <mxCell id="edge_row2_dev_uat" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1;dashed=1;dashPattern=6 6;endArrow=classic;endFill=1;" edge="1" parent="1" source="dot_dev_2" target="dot_uat_2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_row2_uat_prod" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1;dashed=1;dashPattern=6 6;endArrow=classic;endFill=1;" edge="1" parent="1" source="dot_uat_2" target="dot_prod_2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
