@@ -56,22 +56,31 @@ jobs:
           name: site-${{ inputs.tag }}
           path: dist
 
-      # Vercel's --prebuilt expects static files in .vercel/output/static
+      # Vercel's --prebuilt expects:
+      #   .vercel/project.json   → project linking metadata
+      #   .vercel/output/static/ → compiled static assets
+      #   .vercel/output/config.json → routing rules (Build Output API v3)
       - name: Prepare Vercel prebuilt output
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           mkdir -p .vercel/output/static
-          cp -r dist/* .vercel/output/static/
-          cat << 'EOF' > .vercel/output/config.json
+
+          # Write project.json so Vercel CLI can resolve the project without prompting
+          printf '{"orgId":"%s","projectId":"%s"}' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" \
+            > .vercel/project.json
+
+          # Copy the downloaded artifact into the Build Output API v3 static directory
+          cp -r dist/. .vercel/output/static/
+
+          # SPA rewrite: any unmatched path serves index.html for client-side routing
+          cat > .vercel/output/config.json << 'EOF'
           {
             "version": 3,
             "routes": [
-              {
-                "handle": "filesystem"
-              },
-              {
-                "src": "/(.*)",
-                "dest": "/index.html"
-              }
+              { "handle": "filesystem" },
+              { "src": "/(.*)", "dest": "/index.html" }
             ]
           }
           EOF
@@ -84,6 +93,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-version: latest
           vercel-args: ${{ inputs.environment == 'production' && '--prod --prebuilt' || '--prebuilt' }}
           working-directory: .
 
