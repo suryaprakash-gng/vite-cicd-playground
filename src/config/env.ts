@@ -18,7 +18,7 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse(import.meta.env);
 if (!parsed.success) {
   throw new Error(
-    `Invalid environment variables:\n${z.prettifyError(parsed.error)}`,
+    `Invalid environment variables:\n${z.prettifyError(parsed.error)}`
   );
 }
 
