@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.3.0](https://github.com/suryaprakash-gng/vite-cicd-playground/compare/v1.2.0...v1.3.0) (2026-11-02)
+
+
+### Features
+
+* **ci:** add dev preview deploy on PR, automatic UAT deploy, and gated production ([dc7d61f](https://github.com/suryaprakash-gng/vite-cicd-playground/commit/dc7d61f2e7b4a80b98ef9bae616531fa941278d6))
+
+
+### Bug Fixes
+
+* **deploy:** checkout repo so vercel action can read git commit metadata ([f452b39](https://github.com/suryaprakash-gng/vite-cicd-playground/commit/f452b394a3166164a1612e6ef67cf1333f747e87))
+* **deploy:** link project.json and upgrade vercel cli for prebuilt deployment ([c5d5a26](https://github.com/suryaprakash-gng/vite-cicd-playground/commit/c5d5a26ab5218903d5dce2a9e8e4f2c272109534))
+* **deploy:** provide scope and project name to vercel action ([d340030](https://github.com/suryaprakash-gng/vite-cicd-playground/commit/d3400304727ada8b908a99239450854d2875ef09))
+* **deploy:** structure artifact into .vercel/output for --prebuilt deployment ([e112089](https://github.com/suryaprakash-gng/vite-cicd-playground/commit/e112089bf5e1b4b7319784520e7ac51a5f3a4a9c))
+* make backend url optional on startup and support dev/uat environments ([98132bd](https://github.com/suryaprakash-gng/vite-cicd-playground/commit/98132bd0d8fb37a77f6c9ba724b2a1ed8a905dbb))
+
 ## [1.2.0](https://github.com/suryaprakash-gng/vite-cicd-playground/compare/v1.1.2...v1.2.0) (2026-11-02)
 
 
