@@ -15,7 +15,7 @@ on:
         type: string
         required: true
       tag:
-        type: string          # vX.Y.Z tag whose artifact to deploy
+        type: string # vX.Y.Z tag whose artifact to deploy
         required: true
   workflow_dispatch:
     inputs:
@@ -34,7 +34,7 @@ permissions:
 
 concurrency:
   group: deploy-${{ inputs.environment }}
-  cancel-in-progress: false   # never interrupt a running deploy
+  cancel-in-progress: false # never interrupt a running deploy
 
 jobs:
   deploy:
