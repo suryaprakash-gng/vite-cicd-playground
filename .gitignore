@@ -12,3 +12,5 @@ coverage
 !.vscode/settings.json
 .DS_Store
 temp/HandsOn.MD
+.vercel
+.env*

@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.environment }}
-      url: ${{ vars.APP_URL }}
+      url: ${{ steps.vercel.outputs.preview-url }}
     steps:
       # Download the artifact built and uploaded by build-release (or a prior release).
       - name: Download versioned artifact
@@ -53,31 +53,31 @@ jobs:
           name: site-${{ inputs.tag }}
           path: dist
 
-      # ── SIMULATED DEPLOY ─────────────────────────────────────────────────
-      # Replace the block below with your real deploy step (Vercel, S3, etc.).
-      # The artifact in dist/ is already built — no install/build needed.
-      # ─────────────────────────────────────────────────────────────────────
-      - name: Simulate deploy (replace with real step)
+      # Deploy the pre-built artifact in dist/ directly to Vercel — NO rebuild from source.
+      - name: Deploy pre-built artifact to Vercel
+        id: vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: ${{ inputs.environment == 'production' && '--prod --prebuilt' || '--prebuilt' }}
+          working-directory: .
+
+      - name: Deployment Summary
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           TAG: ${{ inputs.tag }}
-        shell: bash
+          DEPLOY_URL: ${{ steps.vercel.outputs.preview-url }}
         run: |
-          echo "Deploying artifact for tag $TAG to $ENVIRONMENT"
-          echo "Files in dist/:"
-          find dist -type f | sort
-
           {
-            echo "## Deployed \`$TAG\` → \`$ENVIRONMENT\`"
+            echo "## 🚀 Deployed \`$TAG\` → \`$ENVIRONMENT\`"
             echo
-            echo "| | |"
+            echo "| Field | Value |"
             echo "|---|---|"
-            echo "| Tag         | \`$TAG\` |"
-            echo "| Environment | \`$ENVIRONMENT\` |"
-            echo "| URL         | ${{ vars.APP_URL }} |"
+            echo "| **Tag / Ref** | \`$TAG\` |"
+            echo "| **Environment** | \`$ENVIRONMENT\` |"
+            echo "| **URL** | [$DEPLOY_URL]($DEPLOY_URL) |"
             echo
-            echo "Artifact contents:"
-            echo '```'
-            find dist -type f -exec ls -lh {} \; | awk '{print $5"\t"$9}'
-            echo '```'
+            echo "Deployed from pre-built artifact **\`site-$TAG\`** without recompiling source code."
           } >> "$GITHUB_STEP_SUMMARY"
