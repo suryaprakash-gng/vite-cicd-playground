@@ -22,10 +22,13 @@ on:
       environment:
         description: Environment to deploy to
         type: choice
-        options: [production]
+        options:
+          - dev
+          - uat
+          - production
         required: true
       tag:
-        description: Release tag to deploy or roll back to (e.g. v1.4.0)
+        description: Release tag or artifact version to deploy (e.g. v1.4.0 or dev-pr-1)
         type: string
         required: true
 
@@ -41,8 +44,11 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.environment }}
-      url: ${{ vars.APP_URL }}
+      url: ${{ steps.vercel.outputs.preview-url }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       # Download the artifact built and uploaded by build-release (or a prior release).
       - name: Download versioned artifact
         uses: actions/download-artifact@v4
@@ -50,31 +56,63 @@ jobs:
           name: site-${{ inputs.tag }}
           path: dist
 
-      # ── SIMULATED DEPLOY ─────────────────────────────────────────────────
-      # Replace the block below with your real deploy step (Vercel, S3, etc.).
-      # The artifact in dist/ is already built — no install/build needed.
-      # ─────────────────────────────────────────────────────────────────────
-      - name: Simulate deploy (replace with real step)
+      # Vercel's --prebuilt expects:
+      #   .vercel/project.json   → project linking metadata
+      #   .vercel/output/static/ → compiled static assets
+      #   .vercel/output/config.json → routing rules (Build Output API v3)
+      - name: Prepare Vercel prebuilt output
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          mkdir -p .vercel/output/static
+
+          # Write project.json so Vercel CLI can resolve the project without prompting
+          printf '{"orgId":"%s","projectId":"%s"}' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" \
+            > .vercel/project.json
+
+          # Copy the downloaded artifact into the Build Output API v3 static directory
+          cp -r dist/. .vercel/output/static/
+
+          # SPA rewrite: any unmatched path serves index.html for client-side routing
+          cat > .vercel/output/config.json << 'EOF'
+          {
+            "version": 3,
+            "routes": [
+              { "handle": "filesystem" },
+              { "src": "/(.*)", "dest": "/index.html" }
+            ]
+          }
+          EOF
+
+      # Deploy the pre-built artifact directly to Vercel — NO rebuild from source.
+      - name: Deploy pre-built artifact to Vercel
+        id: vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-project-name: vite-cicd-playground
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-version: latest
+          vercel-args: ${{ inputs.environment == 'production' && '--prod --prebuilt' || '--prebuilt' }}
+          working-directory: .
+
+      - name: Deployment Summary
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           TAG: ${{ inputs.tag }}
-        shell: bash
+          DEPLOY_URL: ${{ steps.vercel.outputs.preview-url }}
         run: |
-          echo "Deploying artifact for tag $TAG to $ENVIRONMENT"
-          echo "Files in dist/:"
-          find dist -type f | sort
-
           {
-            echo "## Deployed \`$TAG\` → \`$ENVIRONMENT\`"
+            echo "## 🚀 Deployed \`$TAG\` → \`$ENVIRONMENT\`"
             echo
-            echo "| | |"
+            echo "| Field | Value |"
             echo "|---|---|"
-            echo "| Tag         | \`$TAG\` |"
-            echo "| Environment | \`$ENVIRONMENT\` |"
-            echo "| URL         | ${{ vars.APP_URL }} |"
+            echo "| **Tag / Ref** | \`$TAG\` |"
+            echo "| **Environment** | \`$ENVIRONMENT\` |"
+            echo "| **URL** | [$DEPLOY_URL]($DEPLOY_URL) |"
             echo
-            echo "Artifact contents:"
-            echo '```'
-            find dist -type f -exec ls -lh {} \; | awk '{print $5"\t"$9}'
-            echo '```'
+            echo "Deployed from pre-built artifact **\`site-$TAG\`** without recompiling source code."
           } >> "$GITHUB_STEP_SUMMARY"
